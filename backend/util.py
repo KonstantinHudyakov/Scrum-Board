@@ -19,3 +19,7 @@ def check_authenticated():
 
 def conflict_response(text: str) -> Response:
     return Response(text, status=409, mimetype="text/plain")
+
+
+def created_id_response(id):
+    return Response(json.dumps({"id": id}), status=200, mimetype="application/json")
