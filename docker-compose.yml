@@ -14,6 +14,17 @@ services:
     ports:
       - "5432:5432"
 
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    secrets:
+      - postgres-password
+    ports:
+      - "5000:5000"
+
 
 secrets:
   postgres-password:
