@@ -1,0 +1,385 @@
+openapi: 3.0.0
+info:
+  title: Scrum Board API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local Flask backend for Scrum Board
+
+
+paths:
+  /login:
+    put:
+      summary: Try to register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          $ref: '#/components/responses/LogInSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Login too long or empty, or incorrect password hash length, or user with provided login already registered
+          content:
+            text/plain:
+              example: Login too long or empty
+              schema:
+                oneOf:
+                  - type: string
+                    example: Login too long or empty
+                  - type: string
+                    example: Password too long or empty
+                  - type: string
+                    example: User already registered
+
+    post:
+      summary: Try to log in user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          $ref: '#/components/responses/LogInSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Password do not match
+          content:
+            text/plain:
+              example: Password do not match
+              schema:
+                type: string
+
+
+  /board:
+    get:
+      summary: Get all boards
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Boards successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      summary: Create new board
+      security:
+        - Auth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                  example: In Progress
+      responses:
+        '200':
+          $ref: '#/components/responses/PutSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Name too long or empty
+          content:
+            text/plain:
+              example: Name too long or empty
+              schema:
+                type: string
+                example: Name too long or empty
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+
+  /board/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of desired board
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+    get:
+      summary: Get board by ID
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Board succesfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      summary: Delete board with provided id
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Board succesfully deleted or already deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+
+  /task:
+    get:
+      summary: Get all tasks
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Boards successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskWithCreator'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    put:
+      summary: Create new task
+      security:
+        - Auth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTask'
+      responses:
+        '200':
+          $ref: '#/components/responses/PutSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Title too long or empty, or unknown creator_id or board_id
+          content:
+            text/plain:
+              schema:
+                oneOf:
+                  - type: string
+                    example: Title too long or empty
+                  - type: string
+                    example: Unknown creator_id or board_id
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+
+  /task/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of desired task
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+    get:
+      summary: Get task by id
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Task succesfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWithCreator'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      summary: Delete task with provided id
+      security:
+        - Auth: [ ]
+      responses:
+        '200':
+          description: Task succesfully deleted or already deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: JohnDow
+        password:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: veryStrongPassword
+
+    CreatedId:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+
+    Board:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Backlog
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: Change background color of login form
+        creator_id:
+          type: integer
+          minimum: 1
+        board_id:
+          type: integer
+          minimum: 1
+
+    NewTask:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: Change background color of login form
+        creator_id:
+          type: integer
+          minimum: 1
+        board_id:
+          type: integer
+          minimum: 1
+
+    TaskWithCreator:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 150
+          example: Change background color of login form
+        creator:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: JohnDow
+        board_id:
+          type: integer
+          minimum: 1
+
+
+  responses:
+    LogInSuccess:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedId'
+      headers:
+        X-Auth:
+          $ref: '#/components/headers/X-Auth'
+
+    PutSuccess:
+      description: Entity succesfully created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreatedId'
+
+    BadRequest:
+      description: Failed to parse request body or path parameters
+      content:
+        text/html:
+          schema:
+            type: string
+
+    Forbidden:
+      description: User is not authenticated
+      content:
+        text/html:
+          schema:
+            type: string
+
+    NotFound:
+      description: Not found entity with provided parameters
+      content:
+        text/html:
+          schema:
+            type: string
+
+
+  securitySchemes:
+    Auth:
+      description: Authentication key should be obtained using /login request
+      type: apiKey
+      name: X-Auth
+      in: header
+
+
+  headers:
+    X-Auth:
+      description: API authentication token
+      schema:
+        type: string
+        minLength: 32
+        maxLength: 32

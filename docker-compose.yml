@@ -25,6 +25,15 @@ services:
     ports:
       - "5000:5000"
 
+  swagger:
+    image: swaggerapi/swagger-ui
+    environment:
+      SWAGGER_JSON: /swagger/openapi.yml
+    volumes:
+      - ./swagger:/swagger
+    ports:
+      - "4000:8080"
+
 
 secrets:
   postgres-password:
