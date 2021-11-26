@@ -10,7 +10,7 @@ app.register_blueprint(user_blueprint)
 app.register_blueprint(board_blueprint)
 app.register_blueprint(task_blueprint)
 
-cors = CORS(app)
+cors = CORS(app, expose_headers=["X-Auth"])
 
 if __name__ == '__main__':
     app.run()
