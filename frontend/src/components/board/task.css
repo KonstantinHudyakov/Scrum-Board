@@ -1,0 +1,21 @@
+.card-title {
+    font-size: 20px;
+    overflow-wrap: break-word;
+}
+
+.card-subtitle {
+    font-size: 16px;
+    overflow-wrap: break-word;
+}
+
+.btn-danger {
+    margin-left: 20px;
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}

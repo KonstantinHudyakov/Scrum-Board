@@ -1,5 +1,6 @@
 import React from "react";
 import {LoginForm} from "./components/login/LoginForm";
+import {Board} from "./components/board/Board";
 
 export const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
@@ -18,7 +19,7 @@ export class App extends React.Component {
                               setUserId={id => this.setState({userId: id})}
                               getDefaultHeaders={() => this.getDefaultHeaders()}/>
         } else {
-            return <div>Scrum Board</div>
+            return <Board getDefaultHeaders={() => this.getDefaultHeaders()}/>
         }
     }
 
