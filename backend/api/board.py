@@ -52,7 +52,7 @@ def create():
         return conflict_response("Name too long or empty")
     with get_cursor() as cursor:
         cursor.execute("insert into boards(name) values (%s) returning id", [name])
-    id = cursor.fetchone()[0]
+        id = cursor.fetchone()[0]
     return created_id_response(id)
 
 

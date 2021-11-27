@@ -12,7 +12,7 @@ def check_authenticated():
         abort(403)
     with get_cursor() as cursor:
         cursor.execute("select expired from sessions where api_key = %s", [api_key])
-    res = cursor.fetchone()
+        res = cursor.fetchone()
     if res is None or datetime.now() > res[0]:
         abort(403)
 

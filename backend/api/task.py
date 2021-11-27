@@ -70,9 +70,9 @@ def create():
         with get_cursor() as cursor:
             cursor.execute("insert into tasks(title, creator_id, board_id) VALUES (%s, %s, %s) returning id",
                            [title, creator_id, board_id])
+            id = cursor.fetchone()[0]
     except errors.lookup(FOREIGN_KEY_VIOLATION):
         return conflict_response("Unknown creator_id or board_id")
-    id = cursor.fetchone()[0]
     return created_id_response(id)
 
 
