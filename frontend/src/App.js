@@ -19,8 +19,16 @@ export class App extends React.Component {
                               setUserId={id => this.setState({userId: id})}
                               getDefaultHeaders={() => this.getDefaultHeaders()}/>
         } else {
-            return <Board getDefaultHeaders={() => this.getDefaultHeaders()}/>
+            return <Board onLogout={() => this.handleLogout()}
+                          getDefaultHeaders={() => this.getDefaultHeaders()}/>
         }
+    }
+
+    handleLogout() {
+        this.setState({
+            apiKey: null,
+            userId: null
+        })
     }
 
     getDefaultHeaders() {
