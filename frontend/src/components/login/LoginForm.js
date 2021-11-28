@@ -15,13 +15,14 @@ export class LoginForm extends React.Component {
     handleCreateNewAccount() {
         if (!this.checkCredentials()) return
         const request = this.createAuthRequest("PUT")
+        const login = this.state.login
         fetch(request).then(response => {
             if (response.status === 400) {
                 throw createError(request, response, "Bad request")
             } else if (response.status === 409) {
                 response.text().then(errorText => alert(errorText))
             } else if (response.ok) {
-                this.handleAuthSuccess(request, response)
+                this.handleAuthSuccess(request, response, login)
             }
         }).catch(error => console.log(error))
     }
@@ -29,6 +30,7 @@ export class LoginForm extends React.Component {
     handleSignIn() {
         if (!this.checkCredentials()) return
         const request = this.createAuthRequest("POST")
+        const login = this.state.login
         fetch(request).then(response => {
             if (response.status === 400) {
                 throw createError(request, response, "Bad request")
@@ -37,21 +39,24 @@ export class LoginForm extends React.Component {
             } else if (response.status === 409) {
                 alert("Password do not match")
             } else if (response.ok) {
-                this.handleAuthSuccess(request, response)
+                this.handleAuthSuccess(request, response, login)
             }
         })
     }
 
-    handleAuthSuccess(request, response) {
+    handleAuthSuccess(request, response, login) {
         const apiKey = response.headers.get("X-Auth")
         if (!apiKey) throw createError(request, response, "Not found api key in response")
-        this.props.setApiKey(apiKey)
         response.json().then(data => {
             const userId = data.id
             if (!userId || userId !== parseInt(userId, 10)) {
                 throw createError(request, response, "Invalid created user id")
             }
-            this.props.setUserId(userId)
+            this.props.setUser({
+                apiKey: apiKey,
+                id: userId,
+                login: login
+            })
         }).catch(error => console.log(error))
     }
 

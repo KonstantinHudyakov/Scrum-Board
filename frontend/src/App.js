@@ -8,33 +8,33 @@ export class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            apiKey: null,
-            userId: null
+            user: {
+                apiKey: null,
+                id: null,
+                login: null
+            }
         }
     }
 
     render() {
-        if (this.state.apiKey == null || this.state.userId == null) {
-            return <LoginForm setApiKey={key => this.setState({apiKey: key})}
-                              setUserId={id => this.setState({userId: id})}
+        if (this.state.user.apiKey == null) {
+            return <LoginForm setUser={user => this.setState({user: user})}
                               getDefaultHeaders={() => this.getDefaultHeaders()}/>
         } else {
-            return <Board onLogout={() => this.handleLogout()}
+            return <Board userId={this.state.user.id} userName={this.state.user.login}
+                          onLogout={() => this.handleLogout()}
                           getDefaultHeaders={() => this.getDefaultHeaders()}/>
         }
     }
 
     handleLogout() {
-        this.setState({
-            apiKey: null,
-            userId: null
-        })
+        this.setState({user: null})
     }
 
     getDefaultHeaders() {
         return new Headers({
             "Content-Type": "application/json",
-            "X-Auth": this.state.apiKey
+            "X-Auth": this.state.user.apiKey
         })
     }
 }
