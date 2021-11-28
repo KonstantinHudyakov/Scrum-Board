@@ -18,7 +18,8 @@ export class BoardColumn extends React.Component {
         const tasksComponents = []
         for (let task of this.props.tasks) {
             tasksComponents.push(<Task key={task.id} taskId={task.id} title={task.title} creator={task.creator}
-                                       otherBoards={this.props.otherBoards}/>)
+                                       otherBoards={this.props.otherBoards}
+                                       onTaskDelete={() => this.props.onTaskDelete(task.id)}/>)
         }
         return tasksComponents
     }

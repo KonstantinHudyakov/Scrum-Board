@@ -94,6 +94,25 @@ export class Board extends React.Component {
         return everythingOk
     }
 
+    handleTaskDelete(id) {
+        const request = new Request(`${SERVER_URL}/task/${id}`, {
+            method: "DELETE",
+            headers: this.props.getDefaultHeaders()
+        })
+        fetch(request).then(response => {
+            if (response.status === 400) {
+                throw createError(request, response, "Bad request")
+            } else if (response.status === 403) {
+                this.props.onLogout()
+            } else if (!response.ok) {
+                throw createError(request, response)
+            } else {
+                const tasks = this.state.tasks.filter(task => task.id !== id)
+                this.setState({tasks: tasks})
+            }
+        }).catch(error => console.log(error))
+    }
+
     render() {
         return (
             <div className={"board-wrapper"}>
@@ -111,7 +130,8 @@ export class Board extends React.Component {
             const tasks = this.state.tasks.filter(task => task.board_id === board.id)
             const otherBoards = this.state.boards.filter(b => b.id !== board.id)
             boardComponents.push(<BoardColumn key={board.id} boardId={board.id} boardName={board.name} tasks={tasks}
-                                              otherBoards={otherBoards}/>)
+                                              otherBoards={otherBoards}
+                                              onTaskDelete={taskId => this.handleTaskDelete(taskId)}/>)
         }
         return boardComponents
     }

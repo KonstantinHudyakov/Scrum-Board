@@ -10,7 +10,9 @@ export class Task extends React.Component {
                         <h5 className={"card-title"}>{this.props.title}</h5>
                         <h3 className={"card-subtitle mb-2 text-muted"}>{this.props.creator}</h3>
                         {this.renderMoveButton()}
-                        <button className={"btn btn-danger"}>Delete</button>
+                        <button className={"btn btn-danger"}
+                                onClick={() => this.props.onTaskDelete()}>Delete
+                        </button>
                     </div>
                 </div>
             </div>
