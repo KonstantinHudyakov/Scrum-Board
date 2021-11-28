@@ -113,6 +113,39 @@ export class Board extends React.Component {
         }).catch(error => console.log(error))
     }
 
+    handleTaskMove(taskId, newBoardId) {
+        const tasks = this.state.tasks
+        const taskIndex = tasks.findIndex(t => t.id === taskId)
+        if (taskIndex === -1) {
+            console.log(`Not found task with id: ${taskId} in tasks: ${tasks}`)
+            return
+        }
+        const task = tasks[taskIndex]
+        task.board_id = newBoardId
+        this.updateTask(task)
+    }
+
+    updateTask(task) {
+        const request = new Request(`${SERVER_URL}/task`, {
+            method: "POST",
+            headers: this.props.getDefaultHeaders(),
+            body: JSON.stringify(task)
+        })
+        fetch(request).then(response => {
+            if (response.status === 400) {
+                throw createError(request, response, "Bad request")
+            } else if (response.status === 403) {
+                this.props.onLogout()
+            } else if (!response.ok) {
+                throw createError(request, response)
+            } else {
+                const tasks = this.state.tasks.filter(t => t.id !== task.id)
+                tasks.push(task)
+                this.setState({tasks: tasks})
+            }
+        }).catch(error => console.log(error))
+    }
+
     render() {
         return (
             <div className={"board-wrapper"}>
@@ -131,7 +164,8 @@ export class Board extends React.Component {
             const otherBoards = this.state.boards.filter(b => b.id !== board.id)
             boardComponents.push(<BoardColumn key={board.id} boardId={board.id} boardName={board.name} tasks={tasks}
                                               otherBoards={otherBoards}
-                                              onTaskDelete={taskId => this.handleTaskDelete(taskId)}/>)
+                                              onTaskDelete={taskId => this.handleTaskDelete(taskId)}
+                                              onTaskMove={(taskId, newBoardId) => this.handleTaskMove(taskId, newBoardId)}/>)
         }
         return boardComponents
     }

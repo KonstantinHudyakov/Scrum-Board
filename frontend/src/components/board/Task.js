@@ -35,7 +35,13 @@ export class Task extends React.Component {
     renderBoardItems() {
         const items = []
         for (let board of this.props.otherBoards) {
-            items.push(<li key={board.id}><a className={"dropdown-item"}>{board.name}</a></li>)
+            items.push(
+                <li key={board.id}>
+                    <a className={"dropdown-item"}
+                       onClick={() => this.props.onTaskMove(board.id)}>{board.name}
+                    </a>
+                </li>
+            )
         }
         return items
     }

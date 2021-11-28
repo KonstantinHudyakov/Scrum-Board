@@ -19,7 +19,8 @@ export class BoardColumn extends React.Component {
         for (let task of this.props.tasks) {
             tasksComponents.push(<Task key={task.id} taskId={task.id} title={task.title} creator={task.creator}
                                        otherBoards={this.props.otherBoards}
-                                       onTaskDelete={() => this.props.onTaskDelete(task.id)}/>)
+                                       onTaskDelete={() => this.props.onTaskDelete(task.id)}
+                                       onTaskMove={(newBoardId => this.props.onTaskMove(task.id, newBoardId))}/>)
         }
         return tasksComponents
     }
