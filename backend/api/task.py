@@ -8,9 +8,10 @@ from backend.util import conflict_response, check_authenticated, created_id_resp
 
 
 class Task:
-    def __init__(self, id: int, title: str, creator: str, board_id: int) -> None:
+    def __init__(self, id: int, title: str, creator_id: int, creator: str, board_id: int) -> None:
         self.id = id
         self.title = title
+        self.creator_id = creator_id
         self.creator = creator
         self.board_id = board_id
 
@@ -22,12 +23,13 @@ task_blueprint = Blueprint("task", __name__)
 def get_all():
     check_authenticated()
     with get_cursor() as cursor:
-        cursor.execute("select tasks.id, tasks.title, users.login, tasks.board_id from tasks "
+        cursor.execute("select tasks.id, tasks.title, users.id, users.login, tasks.board_id from tasks "
                        "inner join boards on boards.id = tasks.board_id "
                        "inner join users on users.id = tasks.creator_id")
         res = cursor.fetchall()
     if res is not None:
-        json_str = json.dumps([Task(id=row[0], title=row[1], creator=row[2], board_id=row[3]).__dict__ for row in res])
+        json_str = json.dumps([Task(id=row[0], title=row[1], creator_id=row[2],
+                                    creator=row[3], board_id=row[4]).__dict__ for row in res])
         return Response(json_str, status=200, mimetype="application/json")
     else:
         abort(500)
@@ -41,13 +43,13 @@ def get(id):
     except ValueError:
         abort(400)
     with get_cursor() as cursor:
-        cursor.execute("select tasks.id, tasks.title, users.login, tasks.board_id from tasks "
+        cursor.execute("select tasks.id, tasks.title, users.id, users.login, tasks.board_id from tasks "
                        "inner join boards on boards.id = tasks.board_id "
                        "inner join users on users.id = tasks.creator_id "
                        "where tasks.id=%s", [id])
         res = cursor.fetchone()
     if res is not None:
-        json_str = json.dumps(Task(id=id, title=res[1], creator=res[2], board_id=res[3]).__dict__)
+        json_str = json.dumps(Task(id=id, title=res[1], creator_id=res[2], creator=res[3], board_id=res[4]).__dict__)
         return Response(json_str, status=200, mimetype="application/json")
     else:
         abort(404)

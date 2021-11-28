@@ -318,6 +318,9 @@ components:
           minLength: 1
           maxLength: 150
           example: Change background color of login form
+        creator_id:
+          type: integer
+          minimum: 1
         creator:
           type: string
           minLength: 1
