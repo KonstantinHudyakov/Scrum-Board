@@ -25,6 +25,14 @@ services:
     ports:
       - "5000:5000"
 
+  frontend:
+    build:
+      context: ./frontend
+    tty: true
+    stdin_open: true
+    ports:
+      - "3000:3000"
+
   swagger:
     image: swaggerapi/swagger-ui
     environment:
