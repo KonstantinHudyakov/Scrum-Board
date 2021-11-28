@@ -184,15 +184,29 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
-          description: Title too long or empty, or unknown creator_id or board_id
-          content:
-            text/plain:
-              schema:
-                oneOf:
-                  - type: string
-                    example: Title too long or empty
-                  - type: string
-                    example: Unknown creator_id or board_id
+          $ref: '#/components/responses/TaskConflict'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      summary: Update existing task
+      security:
+        - Auth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task succesfully updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/TaskConflict'
         '403':
           $ref: '#/components/responses/Forbidden'
 
@@ -369,6 +383,17 @@ components:
         text/html:
           schema:
             type: string
+
+    TaskConflict:
+      description: Title too long or empty, or unknown creator_id or board_id
+      content:
+        text/plain:
+          schema:
+            oneOf:
+              - type: string
+                example: Title too long or empty
+              - type: string
+                example: Unknown creator_id or board_id
 
 
   securitySchemes:

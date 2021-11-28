@@ -58,16 +58,7 @@ def get(id):
 @task_blueprint.route("/task", methods=["PUT"])
 def create():
     check_authenticated()
-    title = request.json["title"]
-    creator_id = request.json["creator_id"]
-    board_id = request.json["board_id"]
-    try:
-        creator_id = int(creator_id)
-        board_id = int(board_id)
-    except ValueError:
-        abort(400)
-    if not (0 < len(title) <= 150):
-        return conflict_response("Title too long or empty")
+    title, creator_id, board_id = check_and_extract_task_data(request.json)
     try:
         with get_cursor() as cursor:
             cursor.execute("insert into tasks(title, creator_id, board_id) VALUES (%s, %s, %s) returning id",
@@ -76,6 +67,28 @@ def create():
     except errors.lookup(FOREIGN_KEY_VIOLATION):
         return conflict_response("Unknown creator_id or board_id")
     return created_id_response(id)
+
+
+@task_blueprint.route("/task", methods=["POST"])
+def update():
+    check_authenticated()
+    id = request.json["id"]
+    try:
+        id = int(id)
+    except ValueError:
+        abort(400)
+    title, creator_id, board_id = check_and_extract_task_data(request.json)
+    try:
+        with get_cursor() as cursor:
+            cursor.execute("update tasks set title = %s, creator_id = %s, board_id = %s where id = %s returning title",
+                           [title, creator_id, board_id, id])
+            res = cursor.fetchone()
+    except errors.lookup(FOREIGN_KEY_VIOLATION):
+        return conflict_response("Unknown creator_id or board_id")
+    is_updated = res is not None and len(res) > 0
+    if not is_updated:
+        abort(404)
+    return Response(status=200)
 
 
 @task_blueprint.route("/task/<id>", methods=["DELETE"])
@@ -88,3 +101,17 @@ def delete(id):
     with get_cursor() as cursor:
         cursor.execute("delete from tasks where id=%s", [id])
     return Response(status=200)
+
+
+def check_and_extract_task_data(task) -> (str, int, int):
+    title = task["title"]
+    creator_id = task["creator_id"]
+    board_id = task["board_id"]
+    try:
+        creator_id = int(creator_id)
+        board_id = int(board_id)
+    except ValueError:
+        abort(400)
+    if not (0 < len(title) <= 150):
+        return conflict_response("Title too long or empty")
+    return title, creator_id, board_id
